@@ -1,4 +1,8 @@
-use std::{path::Path, fs::File, io::{BufRead, BufReader}};
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+    path::Path,
+};
 
 /// Reads the input file into a vector containing a new entry per line
 ///
@@ -32,7 +36,7 @@ pub fn read_file(file_name: &str) -> Vec<String> {
         content.push(current_line.trim().to_string());
         current_line = String::new();
     }
-    return content;
+    content
 }
 
 #[cfg(test)]
