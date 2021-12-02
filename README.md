@@ -6,4 +6,7 @@ I'm doing my best to document my code so if you like you can clone the repositor
 
 ## Using this libary
 If you would like to use this libary yourself include this line in the `dependencies` block of your cargo.toml file:
+
 `adventofcode_lmh01_lib = { git = "https://github.com/LMH01/adventofcode_lmh01_lib.git" }`
+
+It could however happen that I break this library with updates so be prepared to fix you code when that happens.
