@@ -18,14 +18,7 @@ use std::{
 /// ```
 /// use adventofcode_lmh01_lib::read_file;
 ///
-/// let vec = match read_file("test_file.txt") {
-///     Ok(ok) => ok,
-///     Err(err) => {
-///         println!("Unable to read file: {}", err);
-///         std::process::exit(0);
-///     }
-/// };
-///
+/// let vec = read_file("test_file.txt")?;
 /// ```
 pub fn read_file(file_name: &str) -> Result<Vec<String>, Error> {
     let mut content: Vec<String> = Vec::new();
