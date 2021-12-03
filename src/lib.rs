@@ -18,7 +18,7 @@ use std::{
 /// ```
 /// use adventofcode_lmh01_lib::read_file;
 ///
-/// let vec = read_file("test_file.txt")?;
+/// let vec = read_file("test_file.txt").unwrap();
 /// ```
 pub fn read_file(file_name: &str) -> Result<Vec<String>, Error> {
     let mut content: Vec<String> = Vec::new();
@@ -37,9 +37,50 @@ pub fn read_file(file_name: &str) -> Result<Vec<String>, Error> {
     Ok(content)
 }
 
+/// Transforms a string vector
+///
+/// Each first element of a string is used to form a new vector entry.\
+/// For this function to work properly you should only use it with vectors where each element has
+/// the same length. Otherwise it can lead to undefined behaviour.
+///
+/// # Arguments
+///
+/// * 'vec' - The vector that should be transformed
+///
+/// # Examples
+/// 
+/// Lets say that vec_old contains the following elements:\
+/// Cat\
+/// Dog\
+/// Car\
+///
+/// The new vector 'vec' will contain the following elements:\
+/// CDC\
+/// aoa\
+/// tgr\
+/// ```
+/// use adventofcode_lmh01_lib::transform_vec;
+///
+/// let vec_old = Vec::new();
+/// let vec = transform_vec(vec_old);
+/// ``` 
+///
+pub fn transform_vec(vec: Vec<String>) -> Vec<String> {
+    let mut output: Vec<String> = vec![String::new(); vec.get(0).unwrap_or(&String::new()).len()];
+    for line in &vec {
+        for (index, character) in line.chars().enumerate() {
+            output
+                .get_mut(index)
+                .unwrap_or(&mut String::new())
+                .push(character);
+        }
+    }
+    output
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::read_file;
+    use crate::{read_file, transform_vec};
 
     #[test]
     fn read_file_() {
@@ -47,5 +88,11 @@ mod tests {
         assert_eq!(content.unwrap_or(Vec::new()).len(), 10);
         let content = read_file("does_not_exist.txt");
         assert!(content.is_err());
+    }
+
+    #[test]
+    fn transform_vec_() {
+        let content = transform_vec(read_file("test_file.txt").unwrap());
+        assert_eq!(content.len(), 2);
     }
 }
