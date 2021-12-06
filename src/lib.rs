@@ -1,7 +1,8 @@
 use std::{
+    error::Error,
     fs::File,
-    io::{BufRead, BufReader, Error},
-    num::{IntErrorKind, ParseIntError},
+    io::{BufRead, BufReader, Error as IOError},
+    num::ParseIntError,
     path::Path,
 };
 
@@ -21,7 +22,7 @@ use std::{
 ///
 /// let vec = read_file("test_file.txt").unwrap();
 /// ```
-pub fn read_file(file_name: &str) -> Result<Vec<String>, Error> {
+pub fn read_file(file_name: &str) -> Result<Vec<String>, IOError> {
     let mut content: Vec<String> = Vec::new();
     let path = Path::new(file_name);
     let file = File::open(path);
@@ -103,10 +104,10 @@ pub fn transform_vec(vec: Vec<String>) -> Vec<String> {
 /// ```
 ///
 /// Panics because unwrap is called and an error is returned:
-/// 
+///
 /// ```should_panic
 /// use adventofcode_lmh01_lib::get_draw_numbers;
-/// 
+///
 /// let numbers = get_draw_numbers("a5, b6, c8, d203").unwrap();
 /// assert_eq!(vec![5, 6, 8, 203], numbers);
 /// ```
@@ -115,15 +116,13 @@ pub fn get_draw_numbers(line: &str) -> Result<Vec<i32>, ParseIntError> {
     let mut current_number: String = String::new();
     for char in line.chars() {
         match char {
-            ',' => {
-                match current_number.parse::<i32>() {
-                    Ok(ok) => {
-                        drawn_numbers.push(ok);
-                        current_number = String::new();
-                    },
-                    Err(err) => return Err(err),
+            ',' => match current_number.parse::<i32>() {
+                Ok(ok) => {
+                    drawn_numbers.push(ok);
+                    current_number = String::new();
                 }
-            }
+                Err(err) => return Err(err),
+            },
             ' ' => (),
             _ => current_number.push(char),
         }
@@ -133,6 +132,31 @@ pub fn get_draw_numbers(line: &str) -> Result<Vec<i32>, ParseIntError> {
         Err(err) => return Err(err),
     }
     Ok(drawn_numbers)
+}
+
+/// Launches the part1 and part2 functions of a day and prints information into console
+///
+/// # Arguments
+/// * `part1` - The function that contains the code for part1
+/// * `part2` - The function that contains the code for part2
+/// * `day` - An integer that signals what day the functions belong to
+/// * `parts` - A tuple that contains what parts should be run
+pub fn run_day(
+    part1: fn() -> Result<(), Box<dyn Error>>,
+    part2: fn() -> Result<(), Box<dyn Error>>,
+    day: i32,
+    parts: (bool, bool),
+) -> Result<(), Box<dyn Error>> {
+    println!("Running day {:2}...", day);
+    if parts.0 {
+        println!("--- Part 1 ---");
+        part1()?;
+    }
+    if parts.1 {
+        println!("--- Part 2 ---");
+        part2()?;
+    }
+    Ok(())
 }
 
 #[cfg(test)]
