@@ -2,8 +2,9 @@ use std::{
     error::Error,
     fs::File,
     io::{BufRead, BufReader, Error as IOError},
-    num::ParseIntError,
+    ops::{Add, Sub},
     path::Path,
+    str::FromStr,
 };
 
 /// Reads the input file into a vector containing a new entry per line and returns it.
@@ -82,6 +83,8 @@ pub fn transform_vec(vec: Vec<String>) -> Vec<String> {
 
 /// Transforms the string to a vector that contains the numbers
 ///
+/// T indicates what type the vector should be
+///
 /// # Arguments
 ///
 /// * `line` - A string slice that contains the numbers that should be transformed to a vector
@@ -111,12 +114,14 @@ pub fn transform_vec(vec: Vec<String>) -> Vec<String> {
 /// let numbers = get_draw_numbers("a5, b6, c8, d203").unwrap();
 /// assert_eq!(vec![5, 6, 8, 203], numbers);
 /// ```
-pub fn get_draw_numbers(line: &str) -> Result<Vec<i32>, ParseIntError> {
+pub fn get_draw_numbers<T: Add<Output = T> + Sub<Output = T> + Ord + FromStr>(
+    line: &str,
+) -> Result<Vec<T>, <T as FromStr>::Err> {
     let mut drawn_numbers = Vec::new();
     let mut current_number: String = String::new();
     for char in line.chars() {
         match char {
-            ',' => match current_number.parse::<i32>() {
+            ',' => match current_number.parse::<T>() {
                 Ok(ok) => {
                     drawn_numbers.push(ok);
                     current_number = String::new();
@@ -127,7 +132,7 @@ pub fn get_draw_numbers(line: &str) -> Result<Vec<i32>, ParseIntError> {
             _ => current_number.push(char),
         }
     }
-    match current_number.parse::<i32>() {
+    match current_number.parse::<T>() {
         Ok(ok) => drawn_numbers.push(ok),
         Err(err) => return Err(err),
     }
@@ -179,11 +184,21 @@ mod tests {
 
     #[test]
     fn get_draw_numbers_() {
-        //assert_eq!(, get_draw_numbers(""));
-        assert_eq!(10, get_draw_numbers("0,1,2,3,4,5,6,7,8,9").unwrap().len());
         assert_eq!(
             10,
-            get_draw_numbers("0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 ")
+            get_draw_numbers::<i32>("0,1,2,3,4,5,6,7,8,9")
+                .unwrap()
+                .len()
+        );
+        assert_eq!(
+            10,
+            get_draw_numbers::<i32>("0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 ")
+                .unwrap()
+                .len()
+        );
+        assert_eq!(
+            10,
+            get_draw_numbers::<u8>("0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 ")
                 .unwrap()
                 .len()
         );
