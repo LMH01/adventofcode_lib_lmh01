@@ -152,7 +152,7 @@ pub fn run_day(
     part2: fn(debug: bool) -> Result<(), Box<dyn Error>>,
     day: i32,
     parts: (bool, bool),
-    debug: bool
+    debug: bool,
 ) -> Result<(), Box<dyn Error>> {
     println!("Running day {:02}...", day);
     //println!();
@@ -164,6 +164,27 @@ pub fn run_day(
     if parts.1 {
         println!("--- Part 2 ---");
         part2(debug)?;
+        println!();
+    }
+    Ok(())
+}
+
+/// The same as [`adventofcode_lmh01_lib::run_day`] but only launches the functions when `should_run` is true. Otherwise a message is written to the console.
+/// # Arguments
+/// * `should_run` - If true indicates that the functions for the day should be run. If false a
+/// message is written to the console
+pub fn run_slow_day(
+    part1: fn(debug: bool) -> Result<(), Box<dyn Error>>,
+    part2: fn(debug: bool) -> Result<(), Box<dyn Error>>,
+    day: i32,
+    parts: (bool, bool),
+    debug: bool,
+    should_run: bool,
+) -> Result<(), Box<dyn Error>> {
+    if should_run {
+        run_day(part1, part2, day, parts, debug)?;
+    } else {
+        println!("Skipping day {:02} because fast-only is set", day);
         println!();
     }
     Ok(())
