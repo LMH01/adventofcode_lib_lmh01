@@ -1,11 +1,11 @@
 use std::{
-    error::Error,
     fs::File,
-    io::{BufRead, BufReader, Error as IOError},
+    io::{BufRead, BufReader},
     ops::{Add, Sub},
     path::Path,
     str::FromStr,
 };
+use miette::{Result, IntoDiagnostic, miette};
 
 /// Reads the input file into a vector containing a new entry per line and returns it.
 ///
@@ -23,13 +23,13 @@ use std::{
 ///
 /// let vec = read_file("test_file.txt").unwrap();
 /// ```
-pub fn read_file(file_name: &str) -> Result<Vec<String>, IOError> {
+pub fn read_file(file_name: &str) -> Result<Vec<String>>/*Result<Vec<String>, IOError>*/ {
     let mut content: Vec<String> = Vec::new();
     let path = Path::new(file_name);
     let file = File::open(path);
     let file = match file {
         Ok(file) => file,
-        Err(error) => return Err(error),
+        Err(error) => return Err(error).into_diagnostic()?,
     };
     let mut buffered_reader = BufReader::new(file);
     let mut current_line: String = String::new();
@@ -116,7 +116,7 @@ pub fn transform_vec(vec: Vec<String>) -> Vec<String> {
 /// ```
 pub fn get_draw_numbers<T: Add<Output = T> + Sub<Output = T> + Ord + FromStr>(
     line: &str,
-) -> Result<Vec<T>, <T as FromStr>::Err> {
+) -> Result<Vec<T>> {
     let mut drawn_numbers = Vec::new();
     let mut current_number: String = String::new();
     for char in line.chars() {
@@ -126,7 +126,7 @@ pub fn get_draw_numbers<T: Add<Output = T> + Sub<Output = T> + Ord + FromStr>(
                     drawn_numbers.push(ok);
                     current_number = String::new();
                 }
-                Err(err) => return Err(err),
+                Err(_err) => return Err(miette!(format!("Unable to parse string to numbers.\nInput was: {}", &line))),
             },
             ' ' => (),
             _ => current_number.push(char),
@@ -134,7 +134,7 @@ pub fn get_draw_numbers<T: Add<Output = T> + Sub<Output = T> + Ord + FromStr>(
     }
     match current_number.parse::<T>() {
         Ok(ok) => drawn_numbers.push(ok),
-        Err(err) => return Err(err),
+        Err(_err) => return Err(miette!(format!("Unable to parse string to numbers.\nInput was: {}", &line))),
     }
     Ok(drawn_numbers)
 }
@@ -148,12 +148,12 @@ pub fn get_draw_numbers<T: Add<Output = T> + Sub<Output = T> + Ord + FromStr>(
 /// * `parts` - A tuple that contains what parts should be run
 /// * `debug` - Indicates if debug output should be enabled
 pub fn run_day(
-    part1: fn(debug: bool) -> Result<(), Box<dyn Error>>,
-    part2: fn(debug: bool) -> Result<(), Box<dyn Error>>,
+    part1: fn(debug: bool) -> Result<()>,
+    part2: fn(debug: bool) -> Result<()>,
     day: i32,
     parts: (bool, bool),
     debug: bool,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     println!("Running day {:02}...", day);
     //println!();
     if parts.0 {
@@ -174,17 +174,17 @@ pub fn run_day(
 /// * `should_run` - If true indicates that the functions for the day should be run. If false a
 /// message is written to the console
 pub fn run_slow_day(
-    part1: fn(debug: bool) -> Result<(), Box<dyn Error>>,
-    part2: fn(debug: bool) -> Result<(), Box<dyn Error>>,
+    part1: fn(debug: bool) -> Result<()>,
+    part2: fn(debug: bool) -> Result<()>,
     day: i32,
     parts: (bool, bool),
     debug: bool,
     should_run: bool,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     if should_run {
         run_day(part1, part2, day, parts, debug)?;
     } else {
-        println!("Skipping day {:02} because fast-only is set", day);
+        println!("Skipping day {:02} because --all is not set", day);
         println!();
     }
     Ok(())
