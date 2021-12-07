@@ -146,22 +146,24 @@ pub fn get_draw_numbers<T: Add<Output = T> + Sub<Output = T> + Ord + FromStr>(
 /// * `part2` - The function that contains the code for part2
 /// * `day` - An integer that signals what day the functions belong to
 /// * `parts` - A tuple that contains what parts should be run
+/// * `debug` - Indicates if debug output should be enabled
 pub fn run_day(
-    part1: fn() -> Result<(), Box<dyn Error>>,
-    part2: fn() -> Result<(), Box<dyn Error>>,
+    part1: fn(debug: bool) -> Result<(), Box<dyn Error>>,
+    part2: fn(debug: bool) -> Result<(), Box<dyn Error>>,
     day: i32,
     parts: (bool, bool),
+    debug: bool
 ) -> Result<(), Box<dyn Error>> {
     println!("Running day {:02}...", day);
     //println!();
     if parts.0 {
         println!("--- Part 1 ---");
-        part1()?;
+        part1(debug)?;
         println!();
     }
     if parts.1 {
         println!("--- Part 2 ---");
-        part2()?;
+        part2(debug)?;
         println!();
     }
     Ok(())
