@@ -152,14 +152,17 @@ pub fn run_day(
     day: i32,
     parts: (bool, bool),
 ) -> Result<(), Box<dyn Error>> {
-    println!("Running day {:2}...", day);
+    println!("Running day {:02}...", day);
+    //println!();
     if parts.0 {
         println!("--- Part 1 ---");
         part1()?;
+        println!();
     }
     if parts.1 {
         println!("--- Part 2 ---");
         part2()?;
+        println!();
     }
     Ok(())
 }
