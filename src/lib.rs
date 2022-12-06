@@ -159,6 +159,38 @@ pub fn get_draw_numbers<T: Add<Output = T> + Sub<Output = T> + Ord + FromStr>(
     Ok(drawn_numbers)
 }
 
+/// Reads all numbers from the string and places them in the vector.
+///
+/// # Arguments
+/// * `input` - The input string from which the number should be read.
+/// 
+/// # Examples
+/// ```
+/// use adventofcode_lmh01_lib::numbers_from_string;
+///
+/// let numbers = numbers_from_string("FXD32-233-13AcF");
+/// assert_eq!(vec![32, 233, 13], numbers);
+///
+/// let numbers = numbers_from_string("A2B4V5-F092");
+/// assert_eq!(vec![2, 4, 5, 92], numbers)
+/// ```
+pub fn numbers_from_string(input: &str) -> Vec<u32> {
+    let mut out = Vec::new();
+    let mut current_number = String::new();
+    for c in input.chars() {
+        if c.is_ascii_digit() {
+            current_number.push(c);
+        } else if !current_number.is_empty() {
+            out.push(current_number.parse().unwrap());
+            current_number = String::new();
+        }
+    }
+    if !current_number.is_empty() {
+        out.push(current_number.parse().unwrap());
+    }
+    out
+}
+
 /// Launches the part1 and part2 functions of a day and prints information into console
 ///
 /// # Arguments
@@ -212,7 +244,7 @@ pub fn run_slow_day(
 
 #[cfg(test)]
 mod tests {
-    use crate::{get_draw_numbers, read_file, read_file_absolute, transform_vec};
+    use crate::{get_draw_numbers, read_file, read_file_absolute, transform_vec, numbers_from_string};
 
     #[test]
     fn read_file_() {
@@ -259,5 +291,15 @@ mod tests {
         );
         let numbers = get_draw_numbers("1, 2, 3, 4").unwrap();
         assert_eq!(vec![1, 2, 3, 4], numbers);
+    }
+
+    #[test]
+    fn numbers_from_string_() {
+        let vec = numbers_from_string("234FXD32-233-13AcF");
+        assert_eq!(vec![234, 32, 233, 13], vec);
+        assert_eq!(vec.len(), 4);
+        let vec = numbers_from_string("0123--FOPA23A00100");
+        assert_eq!(vec![123, 23, 100], vec);
+        assert_eq!(vec.len(), 3);
     }
 }
