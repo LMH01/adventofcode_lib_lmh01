@@ -40,6 +40,26 @@ pub fn read_file(file_name: &str) -> Result<Vec<String>>/*Result<Vec<String>, IO
     Ok(content)
 }
 
+/// Reads the input file into a vectory containing a new entry per line and returns it.
+/// In contrary to [read_file](fn.read_file.html) this function does not trim the string, only the
+/// newline character is removed.
+pub fn read_file_absolute(file_name: &str) -> Result<Vec<String>> {
+    let mut content: Vec<String> = Vec::new();
+    let path = Path::new(file_name);
+    let file = File::open(path);
+    let file = match file {
+        Ok(file) => file,
+        Err(error) => return Err(error).into_diagnostic()?,
+    };
+    let mut buffered_reader = BufReader::new(file);
+    let mut current_line: String = String::new();
+    while buffered_reader.read_line(&mut current_line).unwrap_or(0) != 0 {
+        content.push(current_line.trim_end_matches('\n').to_string());
+        current_line = String::new();
+    }
+    Ok(content)
+}
+
 /// Transforms a string vector
 ///
 /// Each first element of a string is used to form a new vector entry.\
@@ -192,14 +212,23 @@ pub fn run_slow_day(
 
 #[cfg(test)]
 mod tests {
-    use crate::{get_draw_numbers, read_file, transform_vec};
+    use crate::{get_draw_numbers, read_file, read_file_absolute, transform_vec};
 
     #[test]
     fn read_file_() {
         let content = read_file("test_file.txt");
-        assert_eq!(content.unwrap_or(Vec::new()).len(), 10);
+        assert_eq!(content.unwrap_or_default().len(), 10);
         let content = read_file("does_not_exist.txt");
         assert!(content.is_err());
+    }
+
+    #[test]
+    fn read_file_abs() {
+        let content = read_file_absolute("test_file2.txt");
+        let default = Vec::new();
+        let line = content.as_ref().unwrap_or(&default).get(1).unwrap();
+        assert_eq!(line.len(), 13);
+        assert_eq!(content.unwrap_or_default().len(), 10);
     }
 
     #[test]
