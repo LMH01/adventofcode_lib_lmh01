@@ -1,3 +1,5 @@
+# This repository has been archived because I'm now using [aocli](https://github.com/sncxyz/aocli).
+
 # adventofcode_lib_lmh01
 This is just a simple library containing some functions that i am reusing for the [advent of code ](https://adventofcode.com/2021/) event.
 
